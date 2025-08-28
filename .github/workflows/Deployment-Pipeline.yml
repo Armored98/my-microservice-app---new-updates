@@ -6,63 +6,74 @@ on:
       - main
 
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.filter.outputs.backend }}
+      frontend_changed: ${{ steps.filter.outputs.frontend }}
+      k8s_changed: ${{ steps.filter.outputs.k8s }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            k8s:
+              - 'k8s/**'
+
   backend:
-    if: contains(github.event.head_commit.message, 'backend') || contains(toJSON(github.event.commits), '/backend/')
+    needs: filter
+    if: needs.filter.outputs.backend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Auth with GCP
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-    
-    - name: Configure Docker
-      run: gcloud auth configure-docker us-central1-docker.pkg.dev
-    
-    - name: Build & Push Backend
-      run: |
-        IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/backend:${{ github.sha }}"
-        docker build -t $IMAGE ./backend
-        docker push $IMAGE
-    
-    - name: Update Backend Deployment
-      run: |
-        kubectl rollout restart deployment backend
+      - uses: actions/checkout@v3
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Build & Push Backend
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/backend:${{ github.sha }}"
+          docker build -t $IMAGE ./backend
+          docker push $IMAGE
+      - name: Update Backend Deployment
+        run: kubectl rollout restart deployment backend
 
   frontend:
-    if: contains(github.event.head_commit.message, 'frontend') || contains(toJSON(github.event.commits), '/frontend/')
+    needs: filter
+    if: needs.filter.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Auth with GCP
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-    
-    - name: Configure Docker
-      run: gcloud auth configure-docker us-central1-docker.pkg.dev
-    
-    - name: Build & Push Frontend
-      run: |
-        IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/frontend:${{ github.sha }}"
-        docker build -t $IMAGE ./frontend
-        docker push $IMAGE
-    
-    - name: Update Frontend Deployment
-      run: |
-        kubectl rollout restart deployment frontend
+      - uses: actions/checkout@v3
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Build & Push Frontend
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/frontend:${{ github.sha }}"
+          docker build -t $IMAGE ./frontend
+          docker push $IMAGE
+      - name: Update Frontend Deployment
+        run: kubectl rollout restart deployment frontend
 
   k8s:
-    if: contains(toJSON(github.event.commits), '/k8s/')
+    needs: filter
+    if: needs.filter.outputs.k8s_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Auth with GCP
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-    
-    - name: Apply k8s manifests
-      run: |
-        kubectl apply -f k8s/
+      - uses: actions/checkout@v3
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Apply k8s manifests
+        run: kubectl apply -f k8s/

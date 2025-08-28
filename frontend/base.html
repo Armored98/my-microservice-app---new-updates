@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>{{ title or "Todo App" }} (Now with an automated CI/CD pipeline using the power of DevOps!)</title>
+		<title>{{ title or "Todo App" }}</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Bootstrap CSS CDN -->
@@ -10,7 +10,7 @@
 	<body class="bg-light">
 		<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
 			<div class="container">
-				<a class="navbar-brand" href="{{ url_for('index') }}">Todo App</a>
+				<a class="navbar-brand" href="{{ url_for('index') }}">Todo App (Now with an automated CI/CD pipeline using the power of DevOps!)</a>
 				<div class="d-flex">
 					{% if session.get('email') %}
 						<span class="navbar-text me-3">Signed in as <b>{{ session['email'] }}</b></span>

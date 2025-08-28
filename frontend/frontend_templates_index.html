@@ -1,0 +1,17 @@
+// Renamed to index.html
+{% extends "base.html" %}
+{% block body %}
+{% if not session.get('token') %}
+  <p>Please <a href="{{ url_for('login') }}">log in</a> to manage your todos.</p>
+{% else %}
+  <ul>
+    {% for todo in todos %}
+      <li>{{ todo.task }}</li>
+    {% endfor %}
+  </ul>
+  <form method="post">
+    <input type="text" name="task" placeholder="New Todo" required>
+    <input type="submit" value="Add">
+  </form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+<form method="post">
+  <p>Email: <input type="email" name="email" required></p>
+  <p>Password: <input type="password" name="password" required></p>
+  <p><button type="submit">{{ btn }}</button></p>
+  <p style="color:red">{{ msg or "" }}</p>
+</form>
+<p>
+{% if mode == "login" %}
+  No account? <a href="{{ url_for('signup') }}">Sign up</a>
+{% else %}
+  Have an account? <a href="{{ url_for('login') }}">Log in</a>
+{% endif %}
+</p>
+{% endblock %}

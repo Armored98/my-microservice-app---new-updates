@@ -1,0 +1,23 @@
+gcloud services enable container.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
+
+gcloud auth configure-docker
+
+cd frontend
+docker build -t gcr.io/myproject-1947-470314/frontend:latest .
+docker push gcr.io/myproject-1947-470314/frontend:latest
+
+cd ../backend
+docker build -t gcr.io/myproject-1947-470314/backend:latest .
+docker push gcr.io/myproject-1947-470314/backend:latest
+
+gcloud container clusters create microservice-cluster --num-nodes=3 --zone=us-central1-a
+gcloud container clusters get-credentials microservice-cluster --zone=us-central1-a
+
+kubectl apply -f k8s/
+
+kubectl get service frontend-service
+
+
+kubectl set image deploy/backend backend=gcr.io/myproject-1947-470314/backend:latest

@@ -16,24 +16,21 @@
 							</div>
 							<ul class="list-group mb-4">
 								{% for todo in todos %}
-									<li class="list-group-item d-flex justify-content-between align-items-center">
+									<li class="list-group-item d-flex justify-content-between align-items-center" style="border-left: 6px solid {% if todo.priority==1 %}#dc3545{% elif todo.priority==2 %}#ffc107{% else %}#28a745{% endif %};">
 										<form method="post" class="d-flex align-items-center w-100" style="gap: 10px;">
 											<input type="hidden" name="toggle_id" value="{{ todo.id }}">
 											<input type="hidden" name="done" value="{{ 0 if todo.done else 1 }}">
 											<input class="form-check-input me-2" type="checkbox" onchange="this.form.submit()" {% if todo.done %}checked{% endif %}>
 											<span {% if todo.done %}style="text-decoration: line-through; color: #888;"{% endif %}>{{ todo.task }}</span>
 										</form>
-										<div class="d-flex align-items-center" style="gap: 5px;">
-											{% for prio, color, title in [(1, '#dc3545', 'High'), (2, '#ffc107', 'Medium'), (3, '#28a745', 'Low')] %}
-											<form method="post" onsubmit="setTimeout(function(){window.location.reload();}, 100);">
-												<input type="hidden" name="toggle_id" value="{{ todo.id }}">
-												<input type="hidden" name="priority" value="{{ prio }}">
-												<button type="submit" class="btn p-0 border-0 bg-transparent" title="{{ title }} priority">
-													<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background-color:{{ color }};border:2px solid {{ color }};{{ 'box-shadow:0 0 0 2px ' ~ color if todo.priority==prio else 'opacity:0.3;' }}"></span>
-												</button>
-											</form>
-											{% endfor %}
-										</div>
+										<form method="post" class="mb-0">
+											<input type="hidden" name="toggle_id" value="{{ todo.id }}">
+											<select name="priority" class="form-select form-select-sm" style="width: 110px; min-width: 90px;" onchange="this.form.submit()">
+												<option value="1" {% if todo.priority==1 %}selected{% endif %} style="color:#dc3545;">High</option>
+												<option value="2" {% if todo.priority==2 %}selected{% endif %} style="color:#ffc107;">Medium</option>
+												<option value="3" {% if todo.priority==3 %}selected{% endif %} style="color:#28a745;">Low</option>
+											</select>
+										</form>
 									</li>
 								{% else %}
 									<li class="list-group-item text-muted">No todos yet.</li>
@@ -41,42 +38,15 @@
 							</ul>
 							<form method="post" class="d-flex align-items-center" style="gap: 10px;" id="add-todo-form">
 								<input type="text" name="task" class="form-control me-2" placeholder="New Todo" required>
-								<div class="d-flex align-items-center" style="gap: 5px;">
-									<label class="me-1">Priority:</label>
-									<input type="radio" name="priority" value="1" id="prio-high" class="form-check-input visually-hidden" required>
-									<label for="prio-high" class="me-1 prio-label" title="High"><span id="circle-high" style="display:inline-block;width:18px;height:18px;border-radius:50%;background-color:#dc3545;border:2px solid #dc3545;"></span></label>
-									<input type="radio" name="priority" value="2" id="prio-med" class="form-check-input visually-hidden">
-									<label for="prio-med" class="me-1 prio-label" title="Medium"><span id="circle-med" style="display:inline-block;width:18px;height:18px;border-radius:50%;background-color:#ffc107;border:2px solid #ffc107;"></span></label>
-									<input type="radio" name="priority" value="3" id="prio-low" class="form-check-input visually-hidden">
-									<label for="prio-low" class="prio-label" title="Low"><span id="circle-low" style="display:inline-block;width:18px;height:18px;border-radius:50%;background-color:#28a745;border:2px solid #28a745;"></span></label>
-								</div>
+								<label class="me-1">Priority:</label>
+								<select name="priority" class="form-select form-select-sm me-2" style="width: 110px; min-width: 90px;">
+									<option value="1" style="color:#dc3545;">High</option>
+									<option value="2" style="color:#ffc107;">Medium</option>
+									<option value="3" style="color:#28a745;">Low</option>
+								</select>
 								<button type="submit" class="btn btn-primary">Add</button>
 							</form>
-							<script>
-							// Highlight selected priority circle
-							document.addEventListener('DOMContentLoaded', function() {
-								const form = document.getElementById('add-todo-form');
-								const radios = form.querySelectorAll('input[name="priority"]');
-								const circles = {
-									'1': document.getElementById('circle-high'),
-									'2': document.getElementById('circle-med'),
-									'3': document.getElementById('circle-low')
-								};
-								function updateHighlight() {
-									radios.forEach(radio => {
-										if (radio.checked) {
-											circles[radio.value].style.boxShadow = '0 0 0 2px ' + circles[radio.value].style.backgroundColor;
-										} else {
-											circles[radio.value].style.boxShadow = 'none';
-										}
-									});
-								}
-								radios.forEach(radio => {
-									radio.addEventListener('change', updateHighlight);
-								});
-								updateHighlight();
-							});
-							</script>
+							<!-- No JS needed for dropdown version -->
 				{% endif %}
 			</div>
 		</div>

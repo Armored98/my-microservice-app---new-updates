@@ -1,0 +1,25 @@
+Permissions:
+gcloud services enable container.googleapis.com
+gcloud services enable artifactregistry.googleapis.com ?
+gcloud services enable cloudbuild.googleapis.com ?
+
+gcloud auth configure-docker
+
+???
+???
+???
+
+Automating Deployment Pipeline Steps (when commiting to main):
+Create Github repo
+
+Github Actions → Add workflow → Include the yml file
+
+Create service account
+Give permissions (Which ones??)
+Add key (JSON)
+Download key
+
+Go to GitHub → your repo → Settings → Secrets and Variables → Actions → New repository secret
+Name it exactly: GCP_CREDENTIALS
+Paste the entire JSON from the file.
+Save the secret.

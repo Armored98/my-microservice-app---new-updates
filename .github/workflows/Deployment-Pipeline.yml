@@ -1,0 +1,68 @@
+name: CI/CD to GKE
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend:
+    if: contains(github.event.head_commit.message, 'backend') || contains(toJSON(github.event.commits), '/backend/')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Auth with GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+    
+    - name: Configure Docker
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+    
+    - name: Build & Push Backend
+      run: |
+        IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/backend:${{ github.sha }}"
+        docker build -t $IMAGE ./backend
+        docker push $IMAGE
+    
+    - name: Update Backend Deployment
+      run: |
+        kubectl rollout restart deployment backend
+
+  frontend:
+    if: contains(github.event.head_commit.message, 'frontend') || contains(toJSON(github.event.commits), '/frontend/')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Auth with GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+    
+    - name: Configure Docker
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+    
+    - name: Build & Push Frontend
+      run: |
+        IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/frontend:${{ github.sha }}"
+        docker build -t $IMAGE ./frontend
+        docker push $IMAGE
+    
+    - name: Update Frontend Deployment
+      run: |
+        kubectl rollout restart deployment frontend
+
+  k8s:
+    if: contains(toJSON(github.event.commits), '/k8s/')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Auth with GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+    
+    - name: Apply k8s manifests
+      run: |
+        kubectl apply -f k8s/

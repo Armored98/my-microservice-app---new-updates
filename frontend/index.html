@@ -4,7 +4,7 @@
 	<div class="col-md-8">
 		<div class="card shadow-sm">
 			<div class="card-body">
-				<h3 class="card-title mb-4">Your Todos (Now with an automated CI/CD pipeline using the power of DevOps!)</h3>
+				<h3 class="card-title mb-4">Your Todos</h3>
 				{% if not session.get('token') %}
 					<div class="alert alert-info">
 						Please <a href="{{ url_for('login') }}" class="alert-link">log in</a> to manage your todos.

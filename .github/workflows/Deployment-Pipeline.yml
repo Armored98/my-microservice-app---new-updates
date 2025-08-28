@@ -41,7 +41,7 @@ jobs:
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - name: Build & Push Backend
         run: |
-          IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/backend:latest"
+          IMAGE="gcr.io/kubernetesproject-470408/backend:latest"
           docker build -t $IMAGE ./backend
           docker push $IMAGE
       - name: Update Backend Deployment
@@ -61,7 +61,7 @@ jobs:
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - name: Build & Push Frontend
         run: |
-          IMAGE="us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/frontend:latest"
+          IMAGE="gcr.io/kubernetesproject-470408/frontend:latest"
           docker build -t $IMAGE ./frontend
           docker push $IMAGE
       - name: Update Frontend Deployment

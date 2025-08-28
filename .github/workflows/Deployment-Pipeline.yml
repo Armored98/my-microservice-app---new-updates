@@ -38,7 +38,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
       - name: Configure Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+        run: gcloud auth configure-docker
       - name: Build & Push Backend
         run: |
           IMAGE="gcr.io/kubernetesproject-470408/backend:latest"
@@ -58,7 +58,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
       - name: Configure Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+        run: gcloud auth configure-docker
       - name: Build & Push Frontend
         run: |
           IMAGE="gcr.io/kubernetesproject-470408/frontend:latest"

@@ -7,7 +7,7 @@
 				<h3 class="card-title mb-4">Your Todos (Now with an automated CI/CD pipeline using the power of DevOps!)</h3>
 				{% if not session.get('token') %}
 					<div class="alert alert-info">
-						Plz 🤪 <a href="{{ url_for('login') }}" class="alert-link">log in</a> to manage your todos.
+						Please <a href="{{ url_for('login') }}" class="alert-link">log in</a> to manage your todos.
 					</div>
 						{% else %}
 							<div class="d-flex justify-content-between align-items-center mb-2">

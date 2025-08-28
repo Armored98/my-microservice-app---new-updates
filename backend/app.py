@@ -37,6 +37,8 @@ class Todo(Base):
     __tablename__ = "todos"
     id = Column(Integer, primary_key=True, index=True)
     task = Column(String, nullable=False, index=True)
+    done = Column(Integer, default=0)  # 0 = not done, 1 = done
+    priority = Column(Integer, default=2)  # 1=red, 2=yellow, 3=green
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
     owner = relationship("User", back_populates="todos")
 
@@ -55,10 +57,13 @@ class TokenOut(BaseModel):
 
 class TodoIn(BaseModel):
     task: str
+    priority: int = 2
 
 class TodoOut(BaseModel):
     id: int
     task: str
+    done: int
+    priority: int
 
 # ---------- App ----------
 app = FastAPI()
@@ -132,16 +137,39 @@ def login(body: LoginIn, db: Session = Depends(get_db)):
 @app.get("/todos", response_model=List[TodoOut])
 def list_todos(current: User = Depends(get_current_user), db: Session = Depends(get_db)):
     rows = db.query(Todo).filter_by(user_id=current.id).order_by(Todo.id.desc()).all()
-    return [TodoOut(id=r.id, task=r.task) for r in rows]
+    return [TodoOut(id=r.id, task=r.task, done=r.done, priority=r.priority) for r in rows]
 
 @app.post("/todos", response_model=TodoOut, status_code=201)
 def add_todo(body: TodoIn, current: User = Depends(get_current_user), db: Session = Depends(get_db)):
     task = body.task.strip()
     if not task:
         raise HTTPException(status_code=400, detail="task required")
-    t = Todo(task=task, user_id=current.id)
+    t = Todo(task=task, user_id=current.id, done=0, priority=body.priority)
     db.add(t); db.commit(); db.refresh(t)
-    return TodoOut(id=t.id, task=t.task)
+    return TodoOut(id=t.id, task=t.task, done=t.done, priority=t.priority)
+# Endpoint to toggle done status
+from fastapi import Body, Request
+
+@app.patch("/todos/{todo_id}", response_model=TodoOut)
+async def update_todo(
+    todo_id: int,
+    request: Request,
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if request.headers.get("content-type", "").startswith("application/json"):
+        data = await request.json()
+    else:
+        data = await request.form()
+    t = db.query(Todo).filter_by(id=todo_id, user_id=current.id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="not found")
+    if "done" in data:
+        t.done = int(data.get("done", 0))
+    if "priority" in data:
+        t.priority = int(data.get("priority", 2))
+    db.commit(); db.refresh(t)
+    return TodoOut(id=t.id, task=t.task, done=t.done, priority=t.priority)
 
 @app.delete("/todos/{todo_id}")
 def delete_todo(todo_id: int, current: User = Depends(get_current_user), db: Session = Depends(get_db)):

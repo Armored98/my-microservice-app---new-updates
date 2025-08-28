@@ -13,9 +13,21 @@ def index():
         return render_template("index.html", title="Todos", todos=[])
     headers = {"Authorization": f"Bearer {session['token']}"}
     if request.method == "POST":
-        task = request.form["task"]
-        r = requests.post(f"{BACKEND_URL}/todos", json={"task": task}, headers=headers, timeout=5)
-        r.raise_for_status()
+        if "task" in request.form:
+            task = request.form["task"]
+            priority = int(request.form.get("priority", 2))
+            r = requests.post(f"{BACKEND_URL}/todos", json={"task": task, "priority": priority}, headers=headers, timeout=5)
+            r.raise_for_status()
+        elif "toggle_id" in request.form and "priority" in request.form:
+            todo_id = int(request.form["toggle_id"])
+            priority = int(request.form["priority"])
+            r = requests.patch(f"{BACKEND_URL}/todos/{todo_id}", json={"priority": priority}, headers=headers, timeout=5)
+            r.raise_for_status()
+        elif "toggle_id" in request.form and "done" in request.form:
+            todo_id = int(request.form["toggle_id"])
+            done = int(request.form["done"])
+            r = requests.patch(f"{BACKEND_URL}/todos/{todo_id}", json={"done": done}, headers=headers, timeout=5)
+            r.raise_for_status()
     r = requests.get(f"{BACKEND_URL}/todos", headers=headers, timeout=5)
     r.raise_for_status()
     todos = r.json()

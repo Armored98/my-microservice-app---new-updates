@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-
+env:
+  PROJECT_ID: kubernetesproject-470408
+  
 jobs:
   filter:
     runs-on: ubuntu-latest

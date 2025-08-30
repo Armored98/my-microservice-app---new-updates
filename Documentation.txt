@@ -3,11 +3,30 @@ gcloud services enable container.googleapis.com
 gcloud services enable artifactregistry.googleapis.com ?
 gcloud services enable cloudbuild.googleapis.com ?
 
+Upload Web-app files in gcloud CLI (See Attached or pasted?):
+my-microservice-app
+
+Create Docker Containers:
 gcloud auth configure-docker
 
-???
-???
-???
+Frontend Container:
+docker build -t gcr.io/kubernetesproject-470408/frontend:latest ./frontend
+docker push gcr.io/kubernetesproject-470408/frontend:latest
+
+Backend Container:
+docker build -t gcr.io/kubernetesproject-470408/backend:latest ./backend
+docker push gcr.io/kubernetesproject-470408/backend:latest
+
+Create Kubernetes Cluster with containers:
+gcloud container clusters create microservice-cluster --num-nodes=3 --zone=us-central1-a
+gcloud container clusters get-credentials microservice-cluster --zone=us-central1-a
+
+kubectl apply -f k8s/
+
+Retrieve the External IP to access the website:
+kubectl get service frontend-service
+
+----
 
 Automating Deployment Pipeline Steps (when commiting to main):
 Create Github repo

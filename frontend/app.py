@@ -43,10 +43,10 @@ def export():
     r.raise_for_status()
     todos = r.json()
     def generate():
-        data = ["ID", "Task"]
+        data = ["ID", "Task","Done","Priority"]
         yield ','.join(data) + '\n'
         for todo in todos:
-            yield f'{todo["id"]},{todo["task"]}\n'
+            yield f'{todo["id"]},{todo["task"]},{todo["done"]},{todo["priority"]}\n'
     return Response(generate(), mimetype='text/csv', headers={
         "Content-Disposition": "attachment; filename=todos.csv"
     })

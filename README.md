@@ -132,13 +132,7 @@ Now every push to `main` triggers build & deployment automatically.
 
 ---
 
-## 👥 Contributors
+## 👥 Team Members
 - **Rasheed Alghamdi**  
 - **Faisal Almudarra**  
 - **Majed Alghasib**
-
----
-
-## 📜 License
-This project is for educational purposes as part of a **Cloud Software Engineering Capstone**.  
-Feel free to fork and adapt for your own use.
